@@ -60,7 +60,7 @@ all() ->
      where_is_file_cached, purge_stacktrace, mult_lib_roots,
      bad_erl_libs, code_archive, code_archive2, on_load,
      on_load_binary, on_load_embedded, on_load_errors,
-     big_boot_embedded, native_early_modules].
+     big_boot_embedded, native_early_modules, get_mode].
 
 groups() -> 
     [].
@@ -1593,6 +1593,11 @@ native_early_modules_1(Architecture) ->
 				    lists,os,packages]),
             ok
     end.
+
+get_mode(suite) -> [];
+get_mode(doc) -> ["Test that the mode of the code server is properly retrieved"];
+get_mode(Config) when is_list(Config) ->
+    ?line interactive = code:get_mode().
 
 %%-----------------------------------------------------------------
 %% error_logger handler.

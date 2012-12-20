@@ -143,7 +143,9 @@ compile(Config) when is_list(Config) ->
 	    ok = beam_lib:crypto_key_fun(simple_crypto_fun(Key)),
 	    {ok,crypt} = cover:compile_beam("crypt.beam")
     end,
+    Path = filename:join([?config(data_dir, Config), "compile_beam", "v.erl"]),
     ?line {ok,v} = cover:compile_beam(v),
+    ?line {source,Path} = lists:keyfind(source, 1, v:module_info(compile)),
     ?line {ok,w} = cover:compile_beam("w.beam"),
     ?line {error,{no_abstract_code,"./x.beam"}} = cover:compile_beam(x),
     ?line {error,{already_cover_compiled,no_beam_found,a}}=cover:compile_beam(a),
@@ -271,12 +273,23 @@ analyse(Config) when is_list(Config) ->
     ?line f:f2(),
     ?line {ok, "f.COVER.out"} = cover:analyse_to_file(f),
 
-    %% Source code cannot be found by analyse_to_file
+    %% Source code can be found via source
     ?line {ok,v} = compile:file("compile_beam/v",[debug_info]),
     ?line code:purge(v),
     ?line {module,v} = code:load_file(v),
     ?line {ok,v} = cover:compile_beam(v),
-    ?line {error,no_source_code_found} = cover:analyse_to_file(v),
+    ?line {ok,"v.COVER.out"} = cover:analyse_to_file(v),
+
+    %% Source code cannot be found
+    ?line {ok,_} = file:copy("compile_beam/z.erl", "z.erl"),
+    ?line {ok,z} = compile:file(z,[debug_info]),
+    ?line code:purge(z),
+    ?line {module,z} = code:load_file(z),
+    ?line {ok,z} = cover:compile_beam(z),
+    ?line ok = file:delete("z.erl"),
+    ?line {error,no_source_code_found} = cover:analyse_to_file(z),
+    ?line code:purge(z),
+    ?line code:delete(z),
 
     ?line {error,{not_cover_compiled,b}} = cover:analyse(b),
     ?line {error,{not_cover_compiled,g}} = cover:analyse(g),

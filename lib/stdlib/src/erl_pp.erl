@@ -472,8 +472,6 @@ lexpr({'fun',_,{clauses,Cs}}, _Prec, Hook) ->
 lexpr({'fun',_,{clauses,Cs},Extra}, _Prec, Hook) ->
     {force_nl,fun_info(Extra),
      {list,[{first,'fun',fun_clauses(Cs, Hook)},'end']}};
-lexpr({'query',_,Lc}, _Prec, Hook) ->
-    {list,[{step,leaf("query"),lexpr(Lc, 0, Hook)},'end']};
 lexpr({call,_,{remote,_,{atom,_,M},{atom,_,F}=N}=Name,Args}, Prec, Hook) ->
     case erl_internal:bif(M, F, length(Args)) of
         true ->

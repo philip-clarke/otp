@@ -146,7 +146,8 @@ call(Name, Req) ->
     end.
 
 reply(Pid, Res) ->
-    Pid ! {?MODULE, Res}.
+    Pid ! {?MODULE, Res},
+    ok.
 
 loop(#state{supervisor=Supervisor}=State0) ->
     receive 
@@ -1511,15 +1512,14 @@ finish_on_load_1(Mod, File, OnLoadRes, WaitingPids, Db) ->
 		  ets:insert(Db, {Mod,File}),
 		  {module,Mod}
 	  end,
-    [reply(Pid, Res) || Pid <- WaitingPids],
-    ok.
+    foreach(fun(Pid) -> reply(Pid, Res) end, WaitingPids).
 
 finish_on_load_report(_Mod, Atom) when is_atom(Atom) ->
     %% No error reports for atoms.
     ok;
 finish_on_load_report(Mod, Term) ->
     %% Play it very safe here. The error_logger module and
-    %% modules it depend on may not be loaded yet and there
+    %% modules it depends on may not be loaded yet and there
     %% would be a dead-lock if we called it directly
     %% from the code_server process.
     spawn(fun() ->
@@ -1530,7 +1530,8 @@ finish_on_load_report(Mod, Term) ->
 		  %% the ext_mod_dep/1 test case.
 		  E = error_logger,
 		  E:warning_msg(F, [Mod,Term,10])
-	  end).
+	  end),
+    ok.
 
 %% -------------------------------------------------------
 %% Internal functions.

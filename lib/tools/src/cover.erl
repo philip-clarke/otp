@@ -2108,9 +2108,10 @@ do_analyse_to_file(Module, OutFile, ErlFile, HTML) ->
 		{ok, OutFd} ->
 		    if HTML -> 
 			    io:format(OutFd,
+				      "<!DOCTYPE HTML>\n"
 				      "<html>\n"
-				      "<head><title>~s</title></head>"
-				      "<body bgcolor=white text=black>\n"
+				      "<head><meta charset='utf-8'><title>~s</title></head>\n"
+				      "<body style='background-color: white; color: black'>\n"
 				      "<pre>\n",
 				      [OutFile]);
 		       true -> ok

@@ -17,6 +17,12 @@
  *
  * %CopyrightEnd%
  */
+#define INET_DRV_DEBUG 1
+#ifdef INET_DRV_DEBUG
+#   define DEBUG 1
+#   undef DEBUGF
+#   define DEBUGF(X) printf X
+#endif
 
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
@@ -1206,6 +1212,8 @@ static int
 http_header_erl(void* arg, const http_atom_t* name, const char* name_ptr,
                 int name_len, const char* value_ptr, int value_len)
 {
+    DEBUGF(("PCE>> name\r\n", *name));        
+    DEBUGF(("PCE>> name_ptr\r\n", *name_ptr));        
     struct packet_callback_args* pca = (struct packet_callback_args*) arg;    
     Eterm bit_term, name_term, val_term;
     Uint sz = 6;

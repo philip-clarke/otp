@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include "sys.h"
 
-/* #define INET_DRV_DEBUG 1 */
+#define INET_DRV_DEBUG 1
 #ifdef INET_DRV_DEBUG
 #   define DEBUG 1
 #   undef DEBUGF
@@ -653,10 +653,12 @@ int packet_parse_http(const char* buf, int len, int* statep,
     else if ((n >= 1) && (buf[n-1] == '\n'))
         n -= 1;
 
+    DEBUGF(("PCE>> statep = %d\r\n", *statep));        
     if (*statep == 0) {
         /* start-line = Request-Line | Status-Line */
 
         if (n >= 5 && (strncmp(buf, "HTTP/", 5) == 0)) {
+            DEBUGF(("PCE>> this is a request\r\n"));        
             int major  = 0;
             int minor  = 0;
             int status = 0;
@@ -708,6 +710,7 @@ int packet_parse_http(const char* buf, int len, int* statep,
                                       ptr, n);
         }
         else {
+            DEBUGF(("PCE>> this is a response\r\n"));        
             /* Request-Line = Method SP Request-URI SP HTTP-Version CRLF */
             http_atom_t* meth;
             const char* meth_ptr = buf;
@@ -780,6 +783,7 @@ int packet_parse_http(const char* buf, int len, int* statep,
         }
     }
     else {
+        DEBUGF(("PCE>> parsing headers"));        
         int up = 1;      /* make next char uppercase */
         http_atom_t* name;
         char name_buf[HTTP_MAX_NAME_LEN];
@@ -837,6 +841,7 @@ int packet_parse_http(const char* buf, int len, int* statep,
         while (n && SP(ptr)) {
             ptr++; n--;
         }
+            DEBUGF(("PCE>> header is %s\r\n", name));        
         return pcb->http_header(arg, name, name_ptr, name_len,
                                 ptr, n);
     }
